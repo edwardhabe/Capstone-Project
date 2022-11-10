@@ -3,7 +3,7 @@ title: Exploratory Phase
 output: html_notebook
 ---
 
-First, I'll begin by setting up any packages I need and clearing R's brain. 
+First, I'll begin by setting up any packages I need and clearing R's brain.
 
 ```{r}
 rm(list = ls())
