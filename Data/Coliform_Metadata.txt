@@ -1,0 +1,9 @@
+Coliform_MPN: This represents the most probable number (MPN) of coliform bacteria present in a 100 mL sample of  water. 
+
+Ecoli_MPN: This represents the most probable number (MPN) of E. coli bacteria present in a 100 mL sample of water. 
+
+Temperature: The temperature (in C) of each particular day a sample was taken. 
+
+pH: The pH of a given sample (On a scale of 0-14). 
+
+Citation of data: Chavarria, Karina (2022): AS-Raw-Data-Indicator-bacteria-project.csv. Smithsonian Tropical Research Institute. Dataset. https://doi.org/10.25573/data.21225338.v1 
