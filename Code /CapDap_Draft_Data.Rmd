@@ -1,18 +1,20 @@
 ---
 title: "CapDap_Draft_Data"
-author: "Edward"
-date: "11/14/2022"
+author: "Edward Habeck IV"
+date: "11/18/2022"
 output: html_document
 ---
 
 
-## Introduction & Hypothesis 
+##Introduction & Hypothesis 
 
 
 Coliforms are microorganisms commonly spread through feces, often known to contaminate sources of water. Abundance of such organisms are studied from water supplies around the world, as are the optimal conditions for them to thrive in laboratory settings. The data which I’m working with depicts samples of water from the Panama Canal Watershed, an essential component of its hydraulic function. Between seasons and from various locations, E. coli and total coliform counts were measured by most probable number (MPN) of bacteria per sample. Additionally, variables such as temperature, pH, and dissolved oxygen were included. 
 
 My hypothesis is that pH and temperature will be a significant indicator of coliform count. Studies have demonstrated that E. coli bacteria optimally survive between 20°C and 40°C (Kumar & Libchaber, 2013). For another variable, researchers analyzing samples from Osijek-Baranja, Croatia observed their greatest abundance of coliforms under a slightly acidic to neutral water pH (Habuda-Stanić, et al, 2013). I expect that other variables such as dissolved oxygen or water conductivity will have an impact on coliform abundance or upon other non-bacterial variables (e. g. relationship between temperature and dissolved O2). 
 
+
+##Analysis
 
 
 To begin, R's memory is cleared and required packages are installed. 
@@ -314,7 +316,7 @@ summary(Bacteria_Data4aov)
 This multi-variable test proves that from this data, the only significant variable in predicting coliform count is sample site/Land_Use. This refutes my previous hypothesis that pH or sample sites played a role in coliform abundance. The test shows that factors besides pH, temperature, dissolved O2, or conductivity must contribute to the prevalence of coliforms in certain locations. I shouldn't need a figure to depict this information, since all that we need is provided through this multi-variable analysis. 
 
 
-## Biological Significance 
+##Biological Significance 
 
 
 Once statistical tests were performed, my initial hypothesis was refuted for several reasons. I began by investigating abiotic factors, such as pH, temperature, and sample site. First, simple linear regression was used to determine the relationship between temperature and dissolved O2 across sites. A p-value of 0.0208 was observed, confirming a significant correlation between the variables. 
@@ -326,7 +328,7 @@ To test coliform abundance between sites, a one-way Anova would also suffice. Kn
 The final test was utilized to understand how variables besides solely pH impacted coliform growth. As many new variables are present at once, multiple regression would need to be carried out, specifically an aov test. It was shown that of sample site, pH, temperature, dissolved O2, and conductivity, sample site was the only significant predictor of coliform abundance in samples (p-value=0.00298). 
 
 
-## Challenges Faced 
+##Challenges Faced 
 
 
 This project required me to branch out from material we learned in class. I needed to do a great deal of research regarding both statistical tests and formatting of plots. First, I went back to get a clearer understanding of test determination. With this, I became more able to select statistical tests based upon the data types associated with them. Another challenge I faced was learning how to carry out new tests we haven’t covered in class. It took many tries to get down Tukey and aov, but I eventually understood them once I consulted various resources. This also helped me to feel more confident in interpreting code which others have produced, something which is important in further navigating R. 
