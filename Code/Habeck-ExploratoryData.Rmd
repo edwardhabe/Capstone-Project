@@ -26,6 +26,7 @@ ggplot(Bacteria_Data, aes(x=pH)) +
 
 ## This data looks pretty consistent within a certain range. However, there may be a couple of  outliers on the lower end of the scale. 
 ```
+I'm assuming this is pH of the water sample?
 
 Now, I'll look at Temperature using another histogram. 
 
@@ -35,6 +36,7 @@ ggplot(Bacteria_Data, aes(x=Temperature)) +
 
 ## Again, this data looks pretty consistent. On the higher end of the range, there could be some outliers to look out for. 
 ```
+Is this water temperature? Or air temperature?
 
 For my last variable, I'll look at total coliform count. 
 
@@ -64,10 +66,14 @@ ggplot(Bacteria_Data, aes(x=Temperature, y=Coliform_MPN)) +
 
 My first thoughts upon seeing this data refute my initial hypothesis. There appears to be no linear trend popping out to me. It looks more like a wall of points more than anything. Later tests will better demonstrate this relationship, though. 
 
+I think you've done some good steps with your exploratory analysis, but what is missing is your interpretation of what you are seeing. What are you learning about your data? The point is to be gettiing a feel for the data. Maybe some boxplots would also be a good idea? Write some text that takes what you are seeing and identifys key points?
+
 For these next couple of steps, I'll go above data exploration into attempting some tests. I had already written out this code, so I'll stick with it rather than deleting it. I've done this for all variables in my data set that I'm analyzing.
 
 
 Now, I'll create a new data set which solely relates temperature to coliform count. This will follow the linear regression model of data analysis. 
+Before you do this you should look at the plot and guesstimate the relationships. What is the expected slope? y-intercept? Are you expecting a significant outcome?
+
 
 ```{r}
 Temperature_mod <- lm(Temperature ~ Coliform_MPN, data=Bacteria_Data)
@@ -77,14 +83,30 @@ Temperature_mod <- lm(Temperature ~ Coliform_MPN, data=Bacteria_Data)
 
 autoplot() will demonstrate different distributions of the data. When using linear regression, we're assuming that we have evenly distributed data and equal distances between points and a line. 
 
+No - we're assuming that the data fit a normal distribution with equal variance.
+
 ```{r}
 autoplot(Temperature_mod)
 ```
 
 Fitted values appear quite flat, and theoretical quantities seem linear. From using autoplot, I can determine that my data should be good to carry on with statistical testing. 
 
+No - your qq plot shows real deviations from the line toward the top left. Let's review the histograms:
+```{r}
+ggplot(Bacteria_Data, aes(x = Temperature))+
+  geom_histogram()
+```
+Looks right-shifted and not normal
+
+```{r}
+ggplot(Bacteria_Data, aes(x = Coliform_MPN))+geom_histogram()
+```
+Also looks non-normal. We may need a glm.
+
+
 The anova test will determine whether or not the relationship between my two variables is significant or not. A p-value less than 0.05 indicates a significant relationship. 
 
+You are not conducting an anova test. You ran a linear regression at line 79. The `anova` function returns and anova table from your linear model. 
 
 ```{r}
 anova(Temperature_mod)
@@ -93,6 +115,8 @@ anova(Temperature_mod)
 ```
 
 A p-value of 0.6593 is far from significant, meaning that from this data in its current state, temperature is not a good indication of total coliform count. 
+
+Ok.  Do you want to improve on the final plot?
 
 Now, to repeat this process with pH instead. I'll attempt to demonstrate the relationship between pH and total coliform count within samples. First to make a scatterplot of pH vs. coliform count. 
 
@@ -122,11 +146,14 @@ Judging from the relatively flat fitted values and linear points within 'theoret
 
 Again, I'll use anova to test the relationship between my two variables, this time pH and coliform count. 
 
+Again, you are not using an anova test...
 ```{r}
 anova(pH_mod)
 ```
 
 This test demonstrates that the relationship between pH and coliform count is not significant, with a p-value of .5298. However, the relationship between pH and coliform count is more significant than that of temperature and coliform count. 
+
+No - we can't interpret a smaller p-value here (that is still huge) as meaning something is more- or less-signficant.
 
 As relationships between coliform count and pH/temperature are not significant, I decided to test the relationship of these two variables with E. coli specifically. E. coli is a type of coliform, however, this new data will be specified for it only. Some of my research surrounding temperature and pH related to E. coli, so I'm hoping that these relationships appear more significant. 
 
@@ -138,6 +165,8 @@ ggplot(Bacteria_Data, aes(x=Ecoli_MPN))+
 ```
 I notice a huge gap between the highest value and the secnd highest value. The max of this data is nearly 50,000 while the next highest is about 20,000. This is a huge gap and will likely throw off data, since the max point will have great leverage. 
 
+You also have a huge number of zero values, a condition we call "zero-inflated". And this is NOT normally distributed data.
+
 Now, I'll make a scatterplot depicting the relationship between E. coli count and temperature. 
 
 ```{r}
@@ -146,6 +175,8 @@ ggplot(Bacteria_Data, aes(x=Temperature, y=Ecoli_MPN)) +
          theme_bw()
 ```
 This is extremely hard to visualize due to the outlier. Since its value is far greater than other points, the chart is skewed and everything is clustered at the bottom. Points may be increasing linearly, but it's difficult to tell at first glance. 
+
+So maybe you should remove the outlier and see what happens?
 
 Next step is to set things up for autoplot. 
 
@@ -159,12 +190,16 @@ autoplot(Temp_Ecoli_mod)
 
 Fitted values are generally flat, except towards their ends. Theoretical values do appear to follow a linear trend, so I'd say that this data is okay to run more tests on. 
 
+No - data do not follow the line in the qq plot - look at upper right.
+
 
 ```{r}
 anova(Temp_Ecoli_mod)
 ```
 
 The relationship between E. coli count and temperature is not significant at a p-value of 0.2883. However, it is far more significant than the relationship between total coliform count and temperature (p=0.6593). This may suggest that temperature could be a more significant predictor of E. coli growth specifically. 
+
+No - when the relationship is not signifiant, you can't really say "more" or "less" significant than other non-significant results.
 
 Now to repeat this all with pH. 
 
@@ -185,16 +220,20 @@ pH_Ecoli_mod <- lm(pH ~ Ecoli_MPN, data=Bacteria_Data)
 ```{r}
 autoplot(pH_Ecoli_mod)
 ```
+Neither your residuals (note the hump in the data) nor the Q-Q plot show good fits. We need glm and probabaly one that allows for zero-inflation.
+
 
 Fitted values are a bit less flat, but still relatively flat overall. I think that the outlier may be causing this to occur. Theoretical quantiles do appear to follow a linear trend, so I'll run the appropriate statistical test on this. 
 
 Time to run anova on pH vs. E. coli count. 
-
+Nope - time to print the anova table from the lm...
 ```{r}
 anova(pH_Ecoli_mod)
 ```
 
 This shows that the relationship between pH and E. coli count is not significant--even less significant than temperature and E. coli count. This is a lesser p-value than that of pH vs. total coliform count (p=0.5298), but not by much. Interestingly, pH was  a greater indicator of total coliform count than temperature. This flipped in the case of solely E. coli count. 
+
+You cannot make the conclusion that pH was a greater indicator of total coliform than temperature. We can't use p-values in that way.
 
 For the next part of my data exploration/analysis, I'll be removing major identified outliers in my data. I'll then perform the exact same statistical tests (and charts) as above to see any differences in p-values. I had already written this code prior to realizing I didn't need to, so I'll leave my filtering and tests. 
 
@@ -226,6 +265,8 @@ Temp_coli_wo_outliers_mod <- lm(Temperature ~ Coliform_MPN, data=Coliform_wo_Out
 autoplot(Temp_coli_wo_outliers_mod)
 ```
 These fitted values appear flat, and points under theoretical quantiles are still linear. Time to use anova! 
+Nope - still off.
+
 
 ```{r}
 anova(Temp_coli_wo_outliers_mod)
@@ -243,7 +284,7 @@ pH_coli_wo_outliers <- lm(pH ~ Coliform_MPN, data=Coliform_wo_Outliers)
 ```{r}
 autoplot(pH_coli_wo_outliers)
 ```
-Fitted values look flat and theoretical quantile points appear linear. Now to use anova! 
+Fitted values look flat and theoretical quantile points appear linear. Now to use anova! Nope - need glm
 
 
 ```{r}
@@ -292,4 +333,9 @@ anova(pH_Ecoli_wo_outliers)
 
 This is the closest we've gotten so far to a significant p-value! Initially 0.517, the new p-value without our outlier point is 0.1555. This implies that pH is likely a greater indicator of E. coli growth than temperature, with or without the outlier. 
 
-In further analysis, I may try removing outliers in coliform or E. coli count themselves. I will also remove NA values from columns when I work with this data again. 
+In further analysis, I may try removing outliers in coliform or E. coli count themselves. I will also remove NA values from columns when I work with this data again.
+
+
+Ok - you did a reasonable data exploration, and then ran some reasonable tests. However, your data dont' meet the assumption of normality nor do they have equal variance - so I think we need to have you run glm models. I can help with this, but you should start by checking out Chapter 7 of your book.
+
+Also, you need to have a minimum of 3 statistical tests and this really only counts as two. I will look to see if there is a third in your CapDap_Draft_Data.Rmd

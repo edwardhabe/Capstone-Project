@@ -6,18 +6,32 @@ output: html_document
 ---
 
 
-##Introduction & Hypothesis 
+##Introduction & Hypotheses 
 
 
-Coliforms are microorganisms commonly spread through feces, often known to contaminate sources of water. Abundance of such organisms are studied from water supplies around the world, as are the optimal conditions for them to thrive in laboratory settings. The data which I’m working with depicts samples of water from the Panama Canal Watershed, an essential component of its hydraulic function. Between seasons and from various locations, E. coli and total coliform counts were measured by most probable number (MPN) of bacteria per sample. Additionally, variables such as temperature, pH, and dissolved oxygen were included. 
+Coliforms are microorganisms commonly spread through feces, often known to contaminate sources of water. Abundance of such organisms are studied from water supplies around the world, as are the optimal conditions for them to thrive in laboratory settings. The data which I’m working with depicts samples of water from the Panama Canal Watershed, an essential component of its hydraulic function. 
 
-My hypothesis is that pH and temperature will be a significant indicator of coliform count. Studies have demonstrated that E. coli bacteria optimally survive between 20°C and 40°C (Kumar & Libchaber, 2013). For another variable, researchers analyzing samples from Osijek-Baranja, Croatia observed their greatest abundance of coliforms under a slightly acidic to neutral water pH (Habuda-Stanić, et al, 2013). I expect that other variables such as dissolved oxygen or water conductivity will have an impact on coliform abundance or upon other non-bacterial variables (e. g. relationship between temperature and dissolved O2). 
+I don't know what "an essential component of its hydraulic function" means in the above.
+
+Between seasons and from various locations, E. coli and total coliform counts were measured by most probable number (MPN) of bacteria per sample. Additionally, variables such as temperature, pH, and dissolved oxygen were included. 
+
+My hypothesis is that pH and temperature will be a significant indicator of coliform count. Studies have demonstrated that E. coli bacteria optimally survive between 20°C and 40°C (Kumar & Libchaber, 2013). For another variable, researchers analyzing samples from Osijek-Baranja, Croatia observed their greatest abundance of coliforms under a slightly acidic to neutral water pH (Habuda-Stanić, et al, 2013). 
+
+I expect that other variables such as dissolved oxygen or water conductivity will have an impact on coliform abundance or upon other non-bacterial variables (e. g. relationship between temperature and dissolved O2). 
+
+What "other variables" - be specific about the test you plan to run and provide a justification for it.
+
+You need to justify why you are making these hypotheses, with citations of the literature.
+
+You need to have a third comparision. A good one would be to examine the aboundance of coliforms across landuse types. Also, your introduction should tell us a little bit more about the data you are using and include a citation for the dataset itself.
 
 
 ##Analysis
 
 
 To begin, R's memory is cleared and required packages are installed. 
+
+Use active voice
 
 ```{r}
 rm(list = ls())
@@ -37,6 +51,8 @@ Bacteria_Data <- na.omit(Bacteria_Data)
 
 ## na.omit() assigns itself to Bacteria_Data to remove any rows containing NA. This is necessary in tidying data for analysis, as such rows could be from lower quality samples. 
 ```
+I would use na.omit with caution. You could have a row of data where only one of the 16 possible values is missing, and you would delete that row, thus losing that data point for 15 of 16 variables...
+
 
 Here, I'll look further into the data to get an idea of basic statistics. This includes, min, max, means, and quartiles. 
 
@@ -46,6 +62,9 @@ summary(Bacteria_Data)
 Judging from this information, there are likely some outliers. We can further visualize these in relation to other points through a histogram. An example is Coliform_MPN, where the max value is nearly 60,000 higher in MPN than its mean. 
 
 Now, I'll create a new dataset consisting of temperature and dissolve O2 data. I will analyze the relationship between temperature and dissolved oxygen of samples from the Panama Canal Watershed. 
+
+This is a fine relationship to look at, but you should conduct and report on your statistical tests in the same order that you present them in the introduction. It still leaves you with three regressions, however.
+
 
 
 ```{r}
@@ -57,6 +76,7 @@ Bacteria_Data1 <- na.omit(Bacteria_Data1)
 
 ## na.omit must be used when creating any new data set. 
 ```
+Where did you get the idea that you have to use na.omit for creating any new data set?
 
 
 Histograms will be made for both individual variables for visualization and to look for outliers. 
@@ -71,8 +91,11 @@ ggplot(Bacteria_Data1, aes(x=DissolvedO2)) +
 
 
 ```
+You have a tendency to create a lot of extraneous data frames. For example, you could have just used Bacteria_Data for these ggplots and didn't really need a whole new dataframe.
 
 There don't appear to be any outliers which could heavily impact our data. Moving on, I've made a scatterplot to depict the effects of temperature on dissolved O2. 
+
+But neither one looks like it is normally distributed.
 
 
 ```{r}
@@ -82,6 +105,8 @@ ggplot(Bacteria_Data1, aes(x=Temperature, y=DissolvedO2)) +
 
 
 Though not in a perfect linear arrangement, I see a trend between points. I feel comfortable in calling this a weak positive due to their arrangement. 
+
+Can you guesstimate a slope and y-intercept?
 
 
 Now, to analyze data through further statistical testing. As both temperature and dissolved O2 are continuous data, simple linear regression should be used. 
@@ -95,6 +120,8 @@ summary(Temp_O2)
 
 This summary confirms that temperature has a significant impact on dissolved O2 in samples from the Panama Canal Watershed, its p-value being 0.0208 (less that 0.05). 
 
+Don't run the summary until you have run the autoplot. You shouldn't really think about the results until you've determined if the data meet the assumptions of the test.
+
 
 Autoplot will determine if this data is adequate for statistical testing, which is visualized in fitted values (which should beflat lines) and theoretical quartiles (ideally points following a linear trend). 
 
@@ -104,6 +131,8 @@ autoplot(Temp_O2)
 
 Finally, here is a depiction of the linear relationship between points when plotting Temperature against dissolved O2. 
 
+These are the best fit of any of your data yet.
+
 ```{r}
 ggplot(Bacteria_Data1, aes(x=Temperature, y=DissolvedO2)) +
   geom_point(colour="maroon") +
@@ -111,10 +140,16 @@ ggplot(Bacteria_Data1, aes(x=Temperature, y=DissolvedO2)) +
 
 ## geom_smooth with 'lm' creates a linear model of the data. This additional feature also depicts a weak positive trend in points. 
 ```
+That looks nice! Can you figure out how to add a figure legend? (hint: it would go inside of the {r} part of your code chunk)
+
+
+What about the anova call? And what does it mean that R2 is so small in your summary() call?
 
 Next, I'll be determining the relationship between sample sites and their pH values.
 
 I begin by selecting appropriate columns from the initial dataset and removing rows containing NA values. I will then create a histogram for pH, since this is a new variable in my analysis. 
+
+This is not one of the analyses you discussed doing in your intro...a more interesting question would be land use and coliforms...
 
 ```{r}
 Bacteria_Data2 <- Bacteria_Data[c(2, 10)]
@@ -142,7 +177,11 @@ ggplot(Bacteria_Data2, aes(x = Land_Use, y = pH, fill=Land_Use)) +
 
 Means of pH seem quite consistent across sites. Ranges differ quite a lot, but overall, there seems to be at most a weak positive relationship between pH and sample site. 
 
+I don't know what that even means? Sample site is not a continuous varaible, so how can it have a weak positive relationship to something?
+
 As the predictor variable is categorical (Land_Use) and the response variable is continuous (pH), a one-way Anova test should be used to determine significance in their relationship. 
+
+Correct. But again, a more interesting question would be how coliform counts differ b/w land use types.
 
 ```{r}
 Land_pH <- lm(pH ~ Land_Use, data=Bacteria_Data2)
@@ -153,6 +192,8 @@ Land_pH <- lm(pH ~ Land_Use, data=Bacteria_Data2)
 autoplot(Land_pH)
 ```
 Fitted value lines are relatively flat, and theoretical quartile points follow a linear trend. Onto performing the Anova test itself. 
+
+You have a problem with normality of your data. Perhaps glm.
 
 ```{r}
 anova(Land_pH)
@@ -198,6 +239,7 @@ ggplot(Bacteria_Data2, aes(Land_Use, pH)) +
 ```
 This box-plot demonstrates that Cattle_Pasture, Mature_Forest, and Silvopasture do not differ significantly from one another. Secondary_Forest, Mature_Forest, and Silvopasture do not either. This means that the only significant difference in pH of sample sites occurs between Cattle_Casture and Secondary_Forest.
 
+Nice! A really nice plot. Good job figuring out tukey's test!
 
 For this next set of data, I'll be looking into the relationship between sample site and total coliform count. I predict that coliform MPN will be dependent on sample site, as pH between sites differs significantly. From my prior research, I know that studies have demonstrated optimal coliform growth under a certain pH range. 
 
@@ -228,6 +270,7 @@ ggplot(Bacteria_Data3, aes(x = Land_Use, y = Coliform_MPN, fill=Land_Use)) +
 ```
 
 Data seems much more differentiated here without any major overlap. I predict that there is a significant difference in coliform count between sample sites based upon this data visualization. 
+
 
 Now, to set up a linear model for autoplot and one-way Anova testing. 
 
@@ -308,12 +351,17 @@ No major outliers are standing out to me. I believe that this data is fine to co
 
 ```{r}
 Bacteria_Data4aov <- aov(Coliform_MPN ~ pH + Temperature + DissolvedO2 +Conductivity + Land_Use, data=Bacteria_Data4)
-
 summary(Bacteria_Data4aov)
 
 ```
-
 This multi-variable test proves that from this data, the only significant variable in predicting coliform count is sample site/Land_Use. This refutes my previous hypothesis that pH or sample sites played a role in coliform abundance. The test shows that factors besides pH, temperature, dissolved O2, or conductivity must contribute to the prevalence of coliforms in certain locations. I shouldn't need a figure to depict this information, since all that we need is provided through this multi-variable analysis. 
+
+This is not the correct way to set up your multiple regression model. You should do some looking around to learn more about it. This will get you started:
+https://www.statology.org/multiple-linear-regression-r/
+
+After you've taken a look at that, see me and we can discuss.
+
+
 
 
 ##Biological Significance 
@@ -333,3 +381,6 @@ The final test was utilized to understand how variables besides solely pH impact
 
 This project required me to branch out from material we learned in class. I needed to do a great deal of research regarding both statistical tests and formatting of plots. First, I went back to get a clearer understanding of test determination. With this, I became more able to select statistical tests based upon the data types associated with them. Another challenge I faced was learning how to carry out new tests we haven’t covered in class. It took many tries to get down Tukey and aov, but I eventually understood them once I consulted various resources. This also helped me to feel more confident in interpreting code which others have produced, something which is important in further navigating R. 
 
+Make sure to knit  your file and see what will show in the display - and then adjust as needed so that the html shows what you want it to show.
+
+You have not provided the full citations for your work. 
