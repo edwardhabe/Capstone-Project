@@ -293,3 +293,4 @@ anova(pH_Ecoli_wo_outliers)
 This is the closest we've gotten so far to a significant p-value! Initially 0.517, the new p-value without our outlier point is 0.1555. This implies that pH is likely a greater indicator of E. coli growth than temperature, with or without the outlier. 
 
 In further analysis, I may try removing outliers in coliform or E. coli count themselves. I will also remove NA values from columns when I work with this data again. 
+
