@@ -89,7 +89,7 @@ ggplot(Bacteria_Data1, aes(x=DissolvedO2)) +
 
 ```
 
-There don't appear to be any outliers which could heavily impact our data. Moving on, I've made a scatterplot to depict the effects of temperature on dissolved O2. 
+There does appear to be a large range of data within these histograms. I'm assuming that this will impact further testing, but this can be determined in autoplot. 
 
 
 ```{r}
@@ -101,22 +101,22 @@ ggplot(Bacteria_Data1, aes(x=Temperature, y=DissolvedO2)) +
 Though not in a perfect linear arrangement, I see a trend between points. I feel comfortable in calling this a weak positive due to their arrangement. 
 
 
+Autoplot will determine if this data is adequate for statistical testing, which is visualized in fitted values (which should be flat lines) and theoretical quartiles (ideally points following a linear trend). 
+
+```{r, echo=FALSE}
+Temp_O2 <- lm(DissolvedO2 ~ Temperature, data=Bacteria_Data1) 
+
+autoplot(Temp_O2)
+```
+
+My fitted values are relatively flat with some deviation. Theoretical quartile points generally follow a linear trend, however, there is significant deviation towards its end. At the moment, a good model for working with oddly distributed data cannot be found, so standard testing with a linear model will be conducted. 
+
+
 Now, to analyze data through further statistical testing. As both temperature and dissolved O2 are continuous data, simple linear regression should be used. 
 
 
-```{r}
-Temp_O2 <- lm(DissolvedO2 ~ Temperature, data=Bacteria_Data1) 
-
+```{r, echo=FALSE}
 summary(Temp_O2) 
-```
-
-This summary confirms that temperature has a significant impact on dissolved O2 in samples from the Panama Canal Watershed, its p-value being 0.0208 (less that 0.05). 
-
-
-Autoplot will determine if this data is adequate for statistical testing, which is visualized in fitted values (which should beflat lines) and theoretical quartiles (ideally points following a linear trend). 
-
-```{r}
-autoplot(Temp_O2)
 ```
 
 Finally, here is a depiction of the linear relationship between points when plotting Temperature against dissolved O2. 
@@ -145,7 +145,7 @@ ggplot(Bacteria_Data2, aes(x=pH)) +
 
 ```
 
-Though this range is quite large, there are no outliers which concern me for statistical tests. 
+The range of data here is quite large. There is large group of points from approximately 6-7.5, but a long tail is present below 6. This could certainly impact how data is interpreted in tests. 
 
 Now to create a figure depicting pH by sample site. For this, I'll use a box plot. As one form of data is categorical (sample site/Land_Use), this will depict the ranges of pH data which fall under each location. 
 
@@ -157,7 +157,7 @@ ggplot(Bacteria_Data2, aes(x = Land_Use, y = pH, fill=Land_Use)) +
 ## Land_Use will be my x-axis, as it is categorical. Points should be plotted above each site from the y-axis. 
 ```
 
-Means of pH seem quite consistent across sites. Ranges differ quite a lot, but overall, there seems to be at most a weak positive relationship between pH and sample site. 
+pH seems quite consistent across sites. There is quite a lot of overlap between points, but overall, there seems to be at least a weak positive relationship between pH and sample site. 
 
 As the predictor variable is categorical (Land_Use) and the response variable is continuous (pH), a one-way Anova test should be used to determine significance in their relationship. 
 
@@ -169,7 +169,8 @@ Land_pH <- lm(pH ~ Land_Use, data=Bacteria_Data2)
 ```{r}
 autoplot(Land_pH)
 ```
-Fitted value lines are relatively flat, and theoretical quartile points follow a linear trend. Onto performing the Anova test itself. 
+
+Fitted value lines are relatively flat, but theoretical quartiles deviate from the linear model towards the beginning points. As a good model for this irregular data cannot be found at the moment, I will continue to use a standard linear model for further tests. 
 
 ```{r}
 anova(Land_pH)
@@ -232,7 +233,7 @@ Since coliform count is a new variable I'm working with, I will make a histogram
 ggplot(Bacteria_Data3, aes(x=Coliform_MPN)) + 
   geom_histogram()
 ```
-There appear to be some points (such as that near the 80,000 MPN mark) that are quite distant from the majority of others, though not extremely far off from the next highest value. In my view, nothing stands out as significantly interrupting further tests.  
+There appear to be some points (such as that near the 80,000 MPN mark) that are quite distant from the majority of others. These could certainly impact tests, given the large range of values. 
 
 
 As this data contains a categorical variable, a boxplot should suffice to view correlations between variables. For my final plot, I will take into account results from a Tukey test, as I did in my last test which contained the same categorical variable. 
@@ -255,7 +256,8 @@ Land_Coliform <- lm(Coliform_MPN ~ Land_Use, data=Bacteria_Data3)
 ```{r}
 autoplot(Land_Coliform)
 ```
-This data looks good to go. Fitted values are flat and theoretical quartiles follow a linear trend. 
+
+Theoretical quartile points deviate towards the beginning, like pH and dissolved O2. As I had done with other such variables, I will continue with a standard linear model for now. 
 
 
 ```{r}
@@ -304,7 +306,7 @@ ggplot(Bacteria_Data3, aes(Land_Use, Coliform_MPN)) +
 ##Box-plot created and formatted. Letters must be raised and increased in size once set on plot. Label of geom_text is assigned data regarding letter assignments on table. 
 
 ```
-From this plot, we can observe several pieces of information. First, Cattle_Pasture, Mature_Forest, and Secondary_Forest do not significantly differ from one another in terms of coliform count. Additionally, Secondary_Forest and Silvopasture do not significantly differ either. However, this chart shows that coliform counts from Cattle_Pasture and Mature_Forest differ significantly from those of Silvopasture 
+From this plot, we can observe several correlations between sites. First, Cattle_Pasture, Mature_Forest, and Secondary_Forest do not significantly differ from one another in terms of coliform count. Additionally, Secondary_Forest and Silvopasture do not significantly differ either. However, this chart shows that coliform counts from Cattle_Pasture and Mature_Forest differ significantly from those of Silvopasture. 
 
 
 Finally, I'll be analyzing the relationship between coliform count and sample site, pH, temperature, dissolved O2, and conductivity. I'll select the appropriate columns and remove any NA values. 
@@ -331,7 +333,7 @@ summary(Bacteria_Data4aov)
 
 ```
 
-This multi-variable test proves that from this data, the only significant variable in predicting coliform count is sample site/Land_Use. This refutes my previous hypothesis that pH or sample sites played a role in coliform abundance. The test shows that factors besides pH, temperature, dissolved O2, or conductivity must contribute to the prevalence of coliforms in certain locations. I shouldn't need a figure to depict this information, since all that we need is provided through this multi-variable analysis. 
+This multi-variable test proves that from this data, the only significant variable in predicting coliform count is sample site/Land_Use. This refutes my previous hypothesis that pH or sample sites played a role in coliform abundance. The test shows that factors besides pH, temperature, dissolved O2, or conductivity must contribute to the prevalence of coliforms in certain locations. I shouldn't need a figure to depict this information, since all that I need is provided through this multi-variable analysis. 
 
 
 # **Biological Significance** 

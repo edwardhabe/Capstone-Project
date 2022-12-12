@@ -18,6 +18,13 @@ Now, to import my data, ensuring that I turn on "stringsAsFactors=TRUE"
 Bacteria_Data <- read.csv(here("Data", "AS-Raw-Data-Indicator-bacteria-project.csv"), stringsAsFactors=TRUE)
 ```
 
+
+I will begin by searching for potential errors within my data. To do so, I'll look at the levels of columns I plan to work with. 
+
+```{r}
+levels()
+```
+
 The first variable I'll work with is pH. Using a histogram, I can search for outliers and get a better idea of how my data looks. 
 
 ```{r}
@@ -81,7 +88,7 @@ autoplot() will demonstrate different distributions of the data. When using line
 autoplot(Temperature_mod)
 ```
 
-Fitted values appear quite flat, and theoretical quantities seem linear. From using autoplot, I can determine that my data should be good to carry on with statistical testing. 
+Fitted values appear quite flat, but theoretical quantiles don't appear to fit the model well. From using autoplot, I can determine that my data should be good to carry on with statistical testing. 
 
 The anova test will determine whether or not the relationship between my two variables is significant or not. A p-value less than 0.05 indicates a significant relationship. 
 
