@@ -277,7 +277,7 @@ ggplot(Secondary, aes(x=Coliform_MPN))+
 ggplot(Mature, aes(x=Coliform_MPN))+
   geom_histogram()
 
-ggplot(Silvopasture, aes(x=Colifrm_MPN))+
+ggplot(Silvopasture, aes(x=Coliform_MPN))+
   geom_histogram()
 ```
 
@@ -374,7 +374,7 @@ From this plot, we can observe several correlations between sites. First, Cattle
 ```{r}
 Bacteria_Data4 <- Bacteria_Data[c(2, 8, 10:11, 13:14)]
 
-na.omit(Bacteria_Data4)
+Bacteria_Data4 <- na.omit(Bacteria_Data4)
 ```
 
 To begin, a linear model is created by combining multiple x-variables together as a factor of Coliform_MPN. Summary() is then used to demonstrate the properties associated with this model. 
