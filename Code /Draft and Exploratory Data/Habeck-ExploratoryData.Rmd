@@ -1,0 +1,162 @@
+---
+title: Exploratory Phase
+output: html_notebook
+---
+
+First, I'll begin by setting up any packages I need and clearing R's brain.
+
+```{r}
+rm(list = ls())
+library(here)
+library(tidyverse)
+library(ggfortify)
+```
+
+Now, to import my data, ensuring that I turn on "stringsAsFactors=TRUE"
+
+```{r}
+Bacteria_Data <- read.csv(here("Data", "AS-Raw-Data-Indicator-bacteria-project.csv"), stringsAsFactors=TRUE)
+```
+
+
+I will begin by searching for potential errors within my data. To do so, I'll look at the levels of categorical data I plan to work with--Land_Use. 
+
+```{r}
+levels(Bacteria_Data$Land_Use)
+```
+As there are only four levels, this data looks good to continue working with. I'll now want to look thrpough the rest of the data in my project. To do this, I will run summary() and glimpse(), allowing me to better view all variables in my data set. 
+
+```{r}
+glimpse(Bacteria_Data)
+
+summary(Bacteria_Data)
+```
+
+Both glimpse() and summary() tell me that there are a lot of NA values. These will need to be removed during analysis, as NA could indicate a lower quality sample. The individual ranges within individual variables are also quite large. I'll need to see if any major outliers exist in variables which I plan to use. For this, I'll create histograms for each variable to get a better look once I've removed NA values. 
+
+```{r}
+Bacteria_Data <- na.omit(Bacteria_Data)
+```
+
+
+First, I plan to use simple linear regression to demonstrate the relationship between water temperature and the dissolved oxygen content of all samples. 
+
+```{r}
+ggplot(Bacteria_Data, aes(x=DissolvedO2)) +
+  geom_histogram()
+
+ggplot(Bacteria_Data, aes(x=Temperature)) +
+  geom_histogram()
+
+```
+Dissolved oxygen seems to have an average value of ~6 unspecified units (which I presume to be ppm), while the mean temperature appears to be ~26C. While it looks to me that both variables have a centralized region of points, they aren't evenly distributed along the histogram. In the case of temperature, there are multiple points which trail off one end or the other. Dissolved oxygen has fewer isolated points, but depicts a wide range of data with fewer points towards one side. If there were to be one or two particular points which were very isolated from all other values, then I would be apt to remove them. However, as points seem to trail off from concentrated areas, I'm hesitant to call any outliers. 
+
+I will now create a basic scatterplot depicting where dissolved O2 values fall along a temperature range. This is an appropriate plot to use, as both temperature and dissolved O2 are forms of continuous data. 
+
+```{r}
+ggplot(Bacteria_Data1, aes(x=Temperature, y=DissolvedO2)) +
+  geom_point()
+```
+
+There isn't a noticeably strong connection between variables in this scatterplot. I do still believe that there is at least a weak positive connection based upon the arrangement of points, however. I would estimate the y-intercept of this plot to be ~4.6, and the slope to be 0.375 (two points on my estimated line being 0.3 (rise) and 0.8 (run) away from one another). 
+
+My next test will be a one-way anova which determines how pH differs between sample sites. Site location is categorical, and I already know that there are four levels without any typos. All that I need to look into is how pH data is distributed. 
+
+```{r}
+Cattle <- Bacteria_Data %>% filter(Land_Use == "Cattle_Pasture")
+
+Mature <- Bacteria_Data %>% filter(Land_Use == "Mature_Forest")
+
+Secondary <- Bacteria_Data %>% filter(Land_Use == "Secondary_Forest")
+
+Silvopasture <- Bacteria_Data %>% filter(Land_Use == "Silvopasture")
+```
+
+```{r}
+ggplot(Bacteria_Data, aes(x=pH)) +
+  geom_histogram()
+
+ggplot(Cattle, aes(x=pH))+
+  geom_histogram() +
+  xlab("Cattle Pasture pH")
+
+ggplot(Secondary, aes(x=pH))+
+  geom_histogram() +
+  xlab("Secondary Forest pH")
+
+ggplot(Mature, aes(x=pH))+
+  geom_histogram() +
+  xlab("Mature Forest pH")
+
+ggplot(Silvopasture, aes(x=pH))+
+  geom_histogram() +
+  xlab("Silvopasture pH")
+```
+The approximate means from my visual estimations appear to be as follows: 
+
+Cattle Pasture: ~6.5 
+
+Secondary Forest: ~6.7
+
+Mature Forest: ~6.8
+
+Silvopasture: ~6.8
+
+There do not appear to be any major differences between these histograms. Though data is distributed differently across sample sites, a large degree of overlap occurs at around 6.7-7.1. From this, I presume there will be at most a weak positive, but there don't seem to be any significant differences between any sites without running tests. 
+
+Like in the case of dissolved O2 and temperature, there are points which are further from the more concentrated values. For example, the highest pH value in Secondary Forest and the lowest pH value of Silvopasture are quite far from other points. When viewing the histogram of all pH data, the overall range is quite large. I don't see anything which sticks out too much as a highly isolated individual point(s), but it's very possible that such a large range could impact the outcome of further tests.
+
+As pH is a form of continuous data and sample site is categorical, a boxplot will be a good way to initially model the relationship between the two variables. 
+
+```{r}
+ggplot(Bacteria_Data, aes(x = Land_Use, y = pH, fill=Land_Use)) + 
+  geom_boxplot() 
+```
+
+As expected, there still does not appear to be much variation between boxes. There is a high degree of overlap in points around 6.5-7, though each site has very differently distributed data and ranges. 
+
+
+I will conduct a second one-way anova test, this time looking at how total coliform count differs between sample sites. 
+
+
+```{r}
+ggplot(Cattle, aes(x=Coliform_MPN))+
+  geom_histogram() +
+  xlab("Cattle Pasture Coliform (MPN)")
+
+ggplot(Secondary, aes(x=Coliform_MPN))+
+  geom_histogram() +
+  xlab("Secondary Forest Coliform (MPN)")
+
+ggplot(Mature, aes(x=Coliform_MPN))+
+  geom_histogram() +
+  xlab("Mature Forest Coliform (MPN)")
+
+ggplot(Silvopasture, aes(x=Coliform_MPN))+
+  geom_histogram() +
+  xlab("Silvopasture Coliform (MPN)")
+```
+For coliform count, my estimated means are as follows: 
+
+Cattle Pasture: ~20,000 MPN
+
+Secondary Forest: ~20,000 MPN
+
+Mature Forest: ~11,000 MPN 
+
+Silvopasture: ~22,000 MPN 
+
+There is a far clearer difference between sites for mean coliform count when compared to pH values. The only issue I'm facing in estimating a mean is how spread out points are on my histograms. Though data is concentrated in one area on some plots (e.g. Silvopasture), it appears much more randomly distributed on others (e.g. Cattle Pasture). All sites other than Silvopasture have a large spike in values around ~48,000 MPN, which is quite far from the greatest concentration of values. If this were to appear differently, my mean estimations would be far lower in sites where these spikes were observed. 
+
+From these histograms, I'm predicting that coliform counts of Cattle Pastures, Secondary Forests, and Silvopastures will not significantly differ. However, I assume that Mature Forest *will* significantly differ from other sites. 
+
+As coliform count is a form of continuous data and sample site is categorical, another boxplot will work for initially depicting this data. 
+
+```{r}
+ggplot(Bacteria_Data, aes(x = Land_Use, y = Coliform_MPN, fill=Land_Use)) + 
+  geom_boxplot() 
+```
+Unlike in the case of pH, the boxes of this plot are far more clearly differentiated from one another. From this, I still believe that Silvopasture will still be significantly different from other sample sites. 
+
+
+
